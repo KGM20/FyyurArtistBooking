@@ -48,10 +48,7 @@ class Show(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.id'), nullable=False)
-    venue_name = db.Column(db.String, nullable=False)
     artist_id = db.Column(db.Integer, db.ForeignKey('artists.id'), nullable=False)
-    artist_name = db.Column(db.String, nullable=False)
-    artist_image_link = db.Column(db.String(500))
     start_time = db.Column(db.DateTime, nullable=False)
 
 
