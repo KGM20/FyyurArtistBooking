@@ -56,4 +56,28 @@ class Show(db.Model):
     artist_image_link = db.Column(db.String(500))
     start_time = db.Column(db.DateTime, nullable=False)
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
+# As an Artist or a Venue can have more than one Gender, it isn't the best practice to put a list as an attribute of a table
+# because it can be very messy working with long strings separated by commas or any form to work a list as an attribute on
+# databases, I found more simple to create a dictionary of Genders as a table and create Many to Many relationships between
+# Artists-Genres and Venues-Genres as you can make the querys easier to implement with this model.
+
+artists_genres = db.Table('artists_genres',
+    db.Column('artist_id', db.Integer, db.ForeignKey('artists.id'), primary_key=True),
+    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id'), primary_key=True)
+)
+
+venues_genres = db.Table('venues_genres',
+    db.Column('venue_id', db.Integer, db.ForeignKey('venues.id'), primary_key=True),
+    db.Column('genre_id', db.Integer, db.ForeignKey('genres.id'), primary_key=True)
+)
+
+class Genre(db.Model):
+	__tablename__ = 'genres'
+
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(), nullable=False)
+	artists = db.relationship('Artist', secondary=artists_genres,
+		backref=db.backref('genres', lazy=True))
+	venues = db.relationship('Venue', secondary=venues_genres,
+		backref=db.backref('genres', lazy=True))
