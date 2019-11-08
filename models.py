@@ -56,9 +56,11 @@ class Show(db.Model):
     artist_image_link = db.Column(db.String(500))
     start_time = db.Column(db.DateTime, nullable=False)
 
-# As Genre could be a list, it is not the best practice to set is as an attribute of a table in databases
-# that's why I decided to create a Dictionary of Genres and make a Many to Many relationships to Artists and
-# Venues, which I think will make easier to query the Genres on the controller
+
+# As an Artist or a Venue can have more than one Gender, it isn't the best practice to put a list as an attribute of a table
+# because it can be very messy working with long strings separated by commas or any form to work a list as an attribute on
+# databases, I found more simple to create a dictionary of Genders as a table and create Many to Many relationships between
+# Artists-Genres and Venues-Genres as you can make the querys easier to implement with this model.
 
 artists_genres = db.Table('artists_genres',
     db.Column('artist_id', db.Integer, db.ForeignKey('artists.id'), primary_key=True),
