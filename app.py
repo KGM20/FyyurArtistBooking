@@ -5,6 +5,7 @@
 import json
 import dateutil.parser
 import babel
+from datetime import datetime
 from flask import Flask, render_template, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -50,7 +51,7 @@ app.jinja_env.filters['datetime'] = format_datetime
 # Controllers.
 #----------------------------------------------------------------------------#
 
-@app.route('/')
+@app.route('/') #NICE
 def index():
   return render_template('pages/home.html')
 
@@ -58,56 +59,72 @@ def index():
 #  Venues
 #  ----------------------------------------------------------------
 
-@app.route('/venues')
+@app.route('/venues') #NICE
 def venues():
-  # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
+
+  data = []
+
+  venues = db.session.query(Venue).all()
+
+  for venue in venues:
+
+    index = 'Not exist'
+    for place in data:
+      if venue.city == place['city'] and venue.state == place['state']:
+        index = data.index(place)
+
+    upcoming_shows = db.session.query(Show).filter_by(venue_id=venue.id).all()
+    today = datetime.now()
+
+    for show in upcoming_shows:
+      if today > show.start_time:
+        upcoming_shows.remove(show)
+
+    if index == 'Not exist':
+      data.append({
+        'city': venue.city,
+        'state': venue.state,
+        'venues': [{
+          'id': venue.id,
+          'name': venue.name,
+          'num_upcoming_shows': len(upcoming_shows),
+        }]
+      })
+    else:
+      data[index]['venues'].append({
+        'id': venue.id,
+        'name': venue.name,
+        'num_upcoming_shows': len(upcoming_shows),
+      })
+
+  # TODO: replace with real venues data. DONE
+  #       num_shows should be aggregated based on number of upcoming shows per venue. 
+
   return render_template('pages/venues.html', areas=data);
 
-@app.route('/venues/search', methods=['POST'])
-def search_venues():
-  name = request.form['search_term']
-  #print(name)
-  response0 = {}
-  data = db.session.query(Venue).filter(Venue.name.ilike('%'+name+'%')).all()
-  count = db.session.query(Venue).filter(Venue.name.ilike('%'+name+'%')).count()
 
-  response0['count'] = count
-  response0['data'] = data
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+@app.route('/venues/search', methods=['POST'])  #NICE
+def search_venues():
+  response = {}
+  name = request.form['search_term']
+  
+  data = db.session.query(Venue).filter(Venue.name.ilike('%'+name+'%')).all()
+  count = len(data)
+
+  response['count'] = count
+  response['data'] = data
+  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive. DONE
   # seach for Hop should return "The Musical Hop".
   # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  #db.session.query(Venue).filter(Venue.name.ilike(name))
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
-  return render_template('pages/search_venues.html', results=response0, search_term=request.form.get('search_term', ''))
+  # response={
+  #   "count": 1,
+  #   "data": [{
+  #     "id": 2,
+  #     "name": "The Dueling Pianos Bar",
+  #     "num_upcoming_shows": 0,
+  #   }]
+  # }
+  return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
