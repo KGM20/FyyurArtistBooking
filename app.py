@@ -235,7 +235,7 @@ def create_venue_submission():
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
 
-@app.route('/venues/<venue_id>', methods=['DELETE'])
+@app.route('/venues/<venue_id>', methods=['DELETE'])   #THIS IS EXTRA
 def delete_venue(venue_id):
   # TODO: Complete this endpoint for taking a venue_id, and using
   # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
@@ -246,37 +246,28 @@ def delete_venue(venue_id):
 
 #  Artists
 #  ----------------------------------------------------------------
-@app.route('/artists')
+@app.route('/artists')   #NICE
 def artists():
-  # TODO: replace with real data returned from querying the database
+  # TODO: replace with real data returned from querying the database DONE
 
   data = db.session.query(Artist).all()
 
-  # data=[{
-  #   "id": 4,
-  #   "name": "Guns N Petals",
-  # }, {
-  #   "id": 5,
-  #   "name": "Matt Quevedo",
-  # }, {
-  #   "id": 6,
-  #   "name": "The Wild Sax Band",
-  # }]
   return render_template('pages/artists.html', artists=data)
 
-@app.route('/artists/search', methods=['POST'])
+@app.route('/artists/search', methods=['POST'])   #NICE
 def search_artists():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.  DONE
   # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
   # search for "band" should return "The Wild Sax Band".
-  response={
-    "count": 1,
-    "data": [{
-      "id": 4,
-      "name": "Guns N Petals",
-      "num_upcoming_shows": 0,
-    }]
-  }
+  response = {}
+  name = request.form['search_term']
+  
+  data = db.session.query(Artist).filter(Artist.name.ilike('%'+name+'%')).all()
+  count = len(data)
+
+  response['count'] = count
+  response['data'] = data
+
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/artists/<int:artist_id>')
