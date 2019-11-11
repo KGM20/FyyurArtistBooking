@@ -5,8 +5,9 @@
 import json
 import dateutil.parser
 import babel
+import sys
 from datetime import datetime
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, abort, request, Response, flash, redirect, url_for
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -120,17 +121,24 @@ def search_venues():
 
 @app.route('/venues/<int:venue_id>')   #NICE
 def show_venue(venue_id):
-  # shows the venue page with the given venue_id
+  # shows the venue page with the given venue_id   DONE
   # TODO: replace with real venue data from the venues table, using venue_id
 
   data = {}
   venue = db.session.query(Venue).get(venue_id)
 
-  genres = db.session.query(Genre).join(Genre.venues).filter_by(id=venue.id).all()
+  # To show an error layout if venue_id index not exists, instead of showing a server error
+  try:
+    genres = db.session.query(Genre).join(Genre.venues).filter_by(id=venue.id).all()
+  except:
+    abort (404)
+  
+  # Selecting genders
   venue_genres = []
   for genre in genres:
     venue_genres.append(genre.name)
 
+  # Selecting shows
   shows = db.session.query(Show).filter_by(venue_id=venue.id).all()
   today = datetime.now()
 
@@ -173,18 +181,58 @@ def show_venue(venue_id):
 #  Create Venue
 #  ----------------------------------------------------------------
 
-@app.route('/venues/create', methods=['GET'])
+@app.route('/venues/create', methods=['GET'])  #NICE
 def create_venue_form():
   form = VenueForm()
   return render_template('forms/new_venue.html', form=form)
 
-@app.route('/venues/create', methods=['POST'])
+@app.route('/venues/create', methods=['POST'])  #NICE
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
+  # TODO: insert form data as a new Venue record in the db, instead DONE
   # TODO: modify data to be the data object returned from db insertion
 
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
+  error = False
+
+  try:
+    name = request.form['name']
+    city = request.form['city']
+    state = request.form['state']
+    address = request.form['address']
+    phone = request.form['phone']
+    image_link = request.form['image_link']
+    genres = request.form.getlist('genres')
+    facebook_link = request.form['facebook_link']
+    website = request.form['website']
+    seeking_description = request.form['seeking_description']
+
+    if request.form['seeking_talent'] == 'Yes':
+      seeking_talent = True
+    else:
+      seeking_talent = False
+
+    venue = Venue(name=name, city=city, state=state, address=address, phone=phone, image_link=image_link, facebook_link=facebook_link, 
+      website=website, seeking_talent=seeking_talent, seeking_description=seeking_description)
+
+    venue_genres = []
+
+    for genre in genres:
+      temp = db.session.query(Genre).filter_by(name=genre).first()
+      venue_genres.append(temp)
+
+    venue.venue_genres = venue_genres
+
+    db.session.add(venue)
+    db.session.commit()
+    flash('Venue ' + name + ' was successfully listed!')
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+    flash('There was an error. ' + name + ' wasn\'t listed...')
+  finally:
+    db.session.close()
+
+  # on successful db insert, flash success DONE
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
