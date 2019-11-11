@@ -191,8 +191,6 @@ def create_venue_submission():
   # TODO: insert form data as a new Venue record in the db, instead DONE
   # TODO: modify data to be the data object returned from db insertion
 
-  error = False
-
   try:
     name = request.form['name']
     city = request.form['city']
@@ -225,7 +223,6 @@ def create_venue_submission():
     db.session.commit()
     flash('Venue ' + name + ' was successfully listed!')
   except:
-    error = True
     db.session.rollback()
     print(sys.exc_info())
     flash('There was an error. ' + name + ' wasn\'t listed...')
@@ -252,16 +249,19 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
   # TODO: replace with real data returned from querying the database
-  data=[{
-    "id": 4,
-    "name": "Guns N Petals",
-  }, {
-    "id": 5,
-    "name": "Matt Quevedo",
-  }, {
-    "id": 6,
-    "name": "The Wild Sax Band",
-  }]
+
+  data = db.session.query(Artist).all()
+
+  # data=[{
+  #   "id": 4,
+  #   "name": "Guns N Petals",
+  # }, {
+  #   "id": 5,
+  #   "name": "Matt Quevedo",
+  # }, {
+  #   "id": 6,
+  #   "name": "The Wild Sax Band",
+  # }]
   return render_template('pages/artists.html', artists=data)
 
 @app.route('/artists/search', methods=['POST'])
