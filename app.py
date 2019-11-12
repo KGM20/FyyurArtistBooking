@@ -587,7 +587,7 @@ def create_show_submission():
     # but I tried using the WTForm validators and I couldn't get them to work, not even the custom ones with
     # the examples on their documentation, making new ones or the Regexp one because I even had the regexp  
     # ready and tested on a local program
-    start_time = datetime.strptime(request.form['start_time'], "%Y-%m-%d %H:%M:%S")
+    start_time = datetime.strptime(request.form['start_time'], "%Y-%m-%d %H:%M")
 
     show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
 
