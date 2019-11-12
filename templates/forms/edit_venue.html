@@ -6,37 +6,109 @@
       <h3 class="form-heading">Edit venue <em>{{ venue.name }}</em> <a href="{{ url_for('index') }}" title="Back to homepage"><i class="fa fa-home pull-right"></i></a></h3>
       <div class="form-group">
         <label for="name">Name</label>
-        {{ form.name(class_ = 'form-control', autofocus = true) }}
+        {{ form.name(class_ = 'form-control', autofocus = true, value = venue.name) }}
       </div>
       <div class="form-group">
           <label>City & State</label>
           <div class="form-inline">
             <div class="form-group">
-              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true) }}
+              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true, value = venue.city) }}
             </div>
             <div class="form-group">
-              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true) }}
+              {{ form.state(class_ = 'form-control', autofocus = true, required = venue.state) }}
             </div>
           </div>
       </div>
       <div class="form-group">
         <label for="address">Address</label>
-        {{ form.address(class_ = 'form-control', autofocus = true) }}
+        {% if venue.address != None %}
+          {{ form.address(class_ = 'form-control', autofocus = true,  value = venue.address) }}
+        {% endif %}
+        {% if venue.address == None %}
+          {{ form.address(class_ = 'form-control', autofocus = true) }}
+        {% endif %}
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+          {% if venue.phone != None %}
+            {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true, value = venue.phone) }}
+          {% endif %}
+          {% if venue.phone == None %}
+            {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+          {% endif %}
         </div>
+      <div class="form-group">
+          <label for="image_link">Image Link</label>
+          {% if venue.image_link != None %}
+            {{ form.image_link(class_ = 'form-control', placeholder='Link to a venue image/photo', autofocus = true, value = venue.image_link) }}
+          {% endif %}
+          {% if venue.image_link == None %}
+            {{ form.image_link(class_ = 'form-control', placeholder='Link to a venue image/photo', autofocus = true) }}
+          {% endif %}
+      </div>
       <div class="form-group">
         <label for="genres">Genres</label>
         <small>Ctrl+Click to select multiple</small>
-        {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas', id=form.state, autofocus = true) }}
+        {{ form.genres(class_ = 'form-control', autofocus = true, value = venue.genres) }}
       </div>
       <div class="form-group">
-          <label for="genres">Facebook Link</label>
-          {{ form.facebook_link(class_ = 'form-control', placeholder='http://', id=form.state, autofocus = true) }}
+          <label for="facebook_link">Facebook Link</label>
+          {% if venue.facebook_link != None %}
+            {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true, value = venue.facebook_link) }}
+          {% endif %}
+          {% if venue.facebook_link == None %}
+            {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% endif %}
         </div>
+      <div class="form-group">
+          <label for="website">Website</label>
+          {% if venue.website != None %}
+            {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true, value = venue.website) }}
+          {% endif %}
+          {% if venue.website == None %}
+            {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% endif %}
+      </div>
+      <div class="form-group">
+          <label for="seeking_talent">Seeking Talent</label>
+          {{ form.seeking_talent(class_ = 'form-control', autofocus = true, required = venue.seeking_talent) }}
+      </div>
+      <div class="form-group">
+          <label for="seeking_description">Seeking Description</label>
+          {% if venue.seeking_description != None %}
+            {{ form.seeking_description(class_ = 'form-control', placeholder='If not seeking talent, leave empty', autofocus = true, value = venue.seeking_description) }}
+          {% endif %}
+          {% if venue.seeking_description == None %}
+            {{ form.seeking_description(class_ = 'form-control', placeholder='If not seeking talent, leave empty', autofocus = true) }}
+          {% endif %}
+      </div>
       <input type="submit" value="Edit Venue" class="btn btn-primary btn-lg btn-block">
     </form>
+    <script type="text/javascript">
+      const state = document.getElementById('state').getAttribute('required');
+      const lista = document.getElementById('state').childNodes;
+      for (let i = 0; i < lista.length; i++) {
+        if (lista[i].value == state){
+          lista[i].setAttribute('selected', 'selected');
+        }
+      }
+
+      const genres = document.getElementById('genres').getAttribute('value');
+      var res = genres.split(" ");
+      const lista2 = document.getElementById('genres').childNodes;
+      for (let i = 0; i < lista2.length; i++) {
+        if(res.includes(lista2[i].value)){
+          lista2[i].setAttribute('selected', 'selected');
+        }
+      }
+
+      const seeking = document.getElementById('seeking_talent').getAttribute('required');
+      const lista3 = document.getElementById('seeking_talent').childNodes;
+      for (let i = 0; i < lista3.length; i++) {
+        if (lista3[i].value == seeking){
+          lista3[i].setAttribute('selected', 'selected');
+        }
+      }
+    </script>
   </div>
 {% endblock %}

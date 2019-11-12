@@ -21,11 +21,21 @@
       </div>
       <div class="form-group">
           <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', value = artist.phone) }}
+          {% if artist.phone != None %}
+            {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', value = artist.phone) }}
+          {% endif %}
+          {% if artist.phone == None %}
+            {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx') }}
+          {% endif %}
         </div>
       <div class="form-group">
           <label for="image_link">Image Link</label>
-          {{ form.image_link(class_ = 'form-control', placeholder='Link to an artist image/photo', autofocus = true, value = artist.image_link) }}
+          {% if artist.image_link != None %}
+            {{ form.image_link(class_ = 'form-control', placeholder='Link to an artist image/photo', autofocus = true, value = artist.image_link) }}
+          {% endif %}
+          {% if artist.image_link == None %}
+            {{ form.image_link(class_ = 'form-control', placeholder='Link to an artist image/photo', autofocus = true) }}
+          {% endif %}
       </div>
       <div class="form-group">
         <label for="genres">Genres</label>
@@ -34,23 +44,39 @@
       </div>
       <div class="form-group">
           <label for="facebook_link">Facebook Link</label>
-          {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true, value = artist.facebook_link) }}
+          {% if artist.facebook_link != None %}
+            {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true, value = artist.facebook_link) }}
+          {% endif %}
+          {% if artist.facebook_link == None %}
+            {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% endif %}
         </div>
       <div class="form-group">
           <label for="website">Website</label>
-          {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true, value = artist.website) }}
+          {% if artist.website != None %}
+            {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true, value = artist.website) }}
+          {% endif %}
+          {% if artist.website == None %}
+            {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
+          {% endif %}
       </div>
       <div class="form-group">
           <label for="seeking_venue">Seeking Venue</label>
-          {{ form.seeking_venue(class_ = 'form-control', autofocus = true, value = artist.seeking_venue) }}
+          {{ form.seeking_venue(class_ = 'form-control', autofocus = true, required = artist.seeking_venue) }}
       </div>
       <div class="form-group">
           <label for="seeking_description">Seeking Description</label>
-          {{ form.seeking_description(class_ = 'form-control', placeholder='If not seeking venue, leave empty', autofocus = true, value = artist.seeking_description) }}
+          {% if artist.address != None %}
+            {{ form.seeking_description(class_ = 'form-control', placeholder='If not seeking venue, leave empty', autofocus = true, value = artist.seeking_description) }}
+          {% endif %}
+          {% if artist.address == None %}
+            {{ form.seeking_description(class_ = 'form-control', placeholder='If not seeking venue, leave empty', autofocus = true) }}
+          {% endif %}
       </div>
       <input type="submit" value="Edit Artist" class="btn btn-primary btn-lg btn-block">
     </form>
     <script type="text/javascript">
+      //Select the acutal artist state
       const state = document.getElementById('state').getAttribute('required');
       const lista = document.getElementById('state').childNodes;
       for (let i = 0; i < lista.length; i++) {
@@ -58,13 +84,21 @@
           lista[i].setAttribute('selected', 'selected');
         }
       }
-
+      //Select the acutal artist genres
       const genres = document.getElementById('genres').getAttribute('value');
       var res = genres.split(" ");
       const lista2 = document.getElementById('genres').childNodes;
       for (let i = 0; i < lista2.length; i++) {
         if(res.includes(lista2[i].value)){
           lista2[i].setAttribute('selected', 'selected');
+        }
+      }
+      //Select the acutal artist seeking_venue
+      const seeking = document.getElementById('seeking_venue').getAttribute('required');
+      const lista3 = document.getElementById('seeking_venue').childNodes;
+      for (let i = 0; i < lista3.length; i++) {
+        if (lista3[i].value == seeking){
+          lista3[i].setAttribute('selected', 'selected');
         }
       }
     </script>

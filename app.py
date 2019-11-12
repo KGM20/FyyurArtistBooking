@@ -52,7 +52,7 @@ app.jinja_env.filters['datetime'] = format_datetime
 # Controllers.
 #----------------------------------------------------------------------------#
 
-@app.route('/') #NICE
+@app.route('/') 
 def index():
   return render_template('pages/home.html')
 
@@ -60,7 +60,7 @@ def index():
 #  Venues
 #  ----------------------------------------------------------------
 
-@app.route('/venues') #NICE
+@app.route('/venues')
 def venues():
 
   data = []
@@ -100,7 +100,7 @@ def venues():
   return render_template('pages/venues.html', areas=data);
 
 
-@app.route('/venues/search', methods=['POST'])  #NICE
+@app.route('/venues/search', methods=['POST'])  
 def search_venues():
   response = {}
   name = request.form['search_term']
@@ -113,7 +113,7 @@ def search_venues():
 
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
-@app.route('/venues/<int:venue_id>')   #NICE
+@app.route('/venues/<int:venue_id>')   
 def show_venue(venue_id):
 
   data = {}
@@ -173,12 +173,12 @@ def show_venue(venue_id):
 #  Create Venue
 #  ----------------------------------------------------------------
 
-@app.route('/venues/create', methods=['GET'])  #NICE
+@app.route('/venues/create', methods=['GET'])  
 def create_venue_form():
   form = VenueForm()
   return render_template('forms/new_venue.html', form=form)
 
-@app.route('/venues/create', methods=['POST'])  #NICE
+@app.route('/venues/create', methods=['POST'])  
 def create_venue_submission():
 
   try:
@@ -221,7 +221,7 @@ def create_venue_submission():
 
   return render_template('pages/home.html')
 
-@app.route('/venues/<venue_id>', methods=['DELETE'])   #THIS IS EXTRA
+@app.route('/venues/<venue_id>', methods=['DELETE'])  
 def delete_venue(venue_id):
 
   try:
@@ -239,11 +239,11 @@ def delete_venue(venue_id):
 
 #  Artists
 #  ----------------------------------------------------------------
-@app.route('/artists')   #NICE
+@app.route('/artists')  
 def artists():
   return render_template('pages/artists.html', artists=db.session.query(Artist).all())
 
-@app.route('/artists/search', methods=['POST'])   #NICE
+@app.route('/artists/search', methods=['POST'])  
 def search_artists():
 
   response = {}
@@ -257,7 +257,7 @@ def search_artists():
 
   return render_template('pages/search_artists.html', results=response, search_term=request.form.get('search_term', ''))
 
-@app.route('/artists/<int:artist_id>')   #NICE
+@app.route('/artists/<int:artist_id>')  
 def show_artist(artist_id):
 
   data = {}
@@ -333,6 +333,11 @@ def edit_artist(artist_id):
   for genre in genres:
     artist_genres = artist_genres + genre.name + ' '
 
+  if artist.seeking_venue:
+    artist_seeking_venue = 'Yes'
+  else:
+    artist_seeking_venue = 'No'
+
   data['id'] = artist.id
   data['name'] = artist.name
   data['genres'] = artist_genres
@@ -341,7 +346,7 @@ def edit_artist(artist_id):
   data['phone'] = artist.phone
   data['website'] = artist.website
   data['facebook_link'] = artist.facebook_link
-  data['seeking_venue'] = artist.seeking_venue
+  data['seeking_venue'] = artist_seeking_venue
   data['seeking_description'] = artist.seeking_description
   data['image_link'] = artist.image_link
 
@@ -349,8 +354,6 @@ def edit_artist(artist_id):
 
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
-  # TODO: take values from the form submitted, and update existing
-  # artist record with ID <artist_id> using the new attributes
   error = False
 
   try:
@@ -404,37 +407,105 @@ def edit_artist_submission(artist_id):
 @app.route('/venues/<int:venue_id>/edit', methods=['GET'])
 def edit_venue(venue_id):
   form = VenueForm()
-  venue={
-    "id": 1,
-    "name": "The Musical Hop",
-    "genres": ["Jazz", "Reggae", "Swing", "Classical", "Folk"],
-    "address": "1015 Folsom Street",
-    "city": "San Francisco",
-    "state": "CA",
-    "phone": "123-123-1234",
-    "website": "https://www.themusicalhop.com",
-    "facebook_link": "https://www.facebook.com/TheMusicalHop",
-    "seeking_talent": True,
-    "seeking_description": "We are on the lookout for a local artist to play every two weeks. Please call us.",
-    "image_link": "https://images.unsplash.com/photo-1543900694-133f37abaaa5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60"
-  }
 
-  return render_template('forms/edit_venue.html', form=form, venue=venue)
+  data = {}
+  venue = db.session.query(Venue).get(venue_id)
+
+  # To show an error layout if venue_id index does not exist, instead of showing a server error
+  try:
+    genres = db.session.query(Genre).join(Genre.venues).filter_by(id=venue.id).all()
+  except:
+    abort (404)
+  
+  # Selecting genders with spaces to split() them on JS
+  venue_genres = ''
+  for genre in genres:
+    venue_genres = venue_genres + genre.name + ' '
+
+  if venue.seeking_talent:
+    venue_seeking_talent = 'Yes'
+  else:
+    venue_seeking_talent = 'No'
+
+  data['id'] = venue.id
+  data['name'] = venue.name
+  data['genres'] = venue_genres
+  data['address'] = venue.address
+  data['city'] = venue.city
+  data['state'] = venue.state
+  data['phone'] = venue.phone
+  data['website'] = venue.website
+  data['facebook_link'] = venue.facebook_link
+  data['seeking_talent'] = venue_seeking_talent
+  data['seeking_description'] = venue.seeking_description
+  data['image_link'] = venue.image_link
+
+  return render_template('forms/edit_venue.html', form=form, venue=data)
 
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
 
-  return redirect(url_for('show_venue', venue_id=venue_id))
+  error = False
+  try:
+
+    venue = db.session.query(Venue).get(venue_id)
+
+    name = request.form['name']
+    city = request.form['city']
+    state = request.form['state']
+    address = request.form['address']
+    phone = request.form['phone']
+    image_link = request.form['image_link']
+    genres = request.form.getlist('genres')
+    facebook_link = request.form['facebook_link']
+    website = request.form['website']
+    seeking_description = request.form['seeking_description']
+
+    if request.form['seeking_talent'] == 'Yes':
+      seeking_talent = True
+    else:
+      seeking_talent = False
+
+    venue_genres = []
+
+    for genre in genres:
+      temp = db.session.query(Genre).filter_by(name=genre).first()
+      venue_genres.append(temp)
+
+    venue.name = name
+    venue.city = city
+    venue.state = state
+    venue.address = address
+    venue.phone = phone
+    venue.image_link = image_link
+    venue.facebook_link = facebook_link
+    venue.website = website
+    venue.seeking_description = seeking_description
+    venue.seeking_talent = seeking_talent
+    venue.venue_genres = venue_genres
+
+    db.session.commit()
+  except:
+    db.session.rollback()
+    print(sys.exc_info())
+    flash('There was an error. ' + name + ' wasn\'t updated...')
+    error = True
+  finally:
+    db.session.close()
+  if error:
+    return render_template('pages/home.html')
+  else:
+   return redirect(url_for('show_venue', venue_id=venue_id))
 
 #  Create Artist
 #  ----------------------------------------------------------------
 
-@app.route('/artists/create', methods=['GET'])   #NICE
+@app.route('/artists/create', methods=['GET'])  
 def create_artist_form():
   form = ArtistForm()
   return render_template('forms/new_artist.html', form=form)
 
-@app.route('/artists/create', methods=['POST'])   #NICE
+@app.route('/artists/create', methods=['POST'])  
 def create_artist_submission():
 
   try:
@@ -480,7 +551,7 @@ def create_artist_submission():
 #  Shows
 #  ----------------------------------------------------------------
 
-@app.route('/shows')   #NICE
+@app.route('/shows') 
 def shows():
 
   data = []
@@ -512,6 +583,10 @@ def create_show_submission():
   try:
     artist_id = request.form['artist_id']
     venue_id = request.form['venue_id']
+    # I know I should have validated the start_time better because it's really easy to get an error with that
+    # but I tried using the WTForm validators and I couldn't get them to work, not even the custom ones with
+    # the examples on their documentation, making new ones or the Regexp one because I even had the regexp  
+    # ready and tested on a local program
     start_time = datetime.strptime(request.form['start_time'], "%Y-%m-%d %H:%M:%S")
 
     show = Show(artist_id=artist_id, venue_id=venue_id, start_time=start_time)
