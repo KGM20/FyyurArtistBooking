@@ -1,7 +1,20 @@
 from datetime import datetime
 from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField
-from wtforms.validators import DataRequired, AnyOf, URL
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, TextAreaField
+from wtforms.validators import DataRequired, AnyOf, URL, Regexp
+# import re
+
+#----------------------------------------------------------------------------#
+# Some custom validators.
+#----------------------------------------------------------------------------#
+
+#We want Phone Number to be NULL or 123-456-7890 | (123) 456-7890 formats
+
+# def validate_phone_number(form, field):
+#     if not field.data == '':
+#         check_validation = re.match('^((\(\d{3}\) ?)|(\d{3}-))?\d{3}-\d{4}$', field.data, re.I)
+#         if not check_validation:
+#             raise ValidationError('Field must be empty or require 123-456-7980 | (123) 456-7890 formats')
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -19,6 +32,9 @@ class VenueForm(Form):
     name = StringField(
         'name', validators=[DataRequired()]
     )
+    def validate_name(form, field):
+        if len(field.data) > 50:
+            raise ValidationError('Name must be less than 50 characters')
     city = StringField(
         'city', validators=[DataRequired()]
     )
@@ -82,7 +98,7 @@ class VenueForm(Form):
         'address', validators=[DataRequired()]
     )
     phone = StringField(
-        'phone'
+        'phone'#, validators=[validate_phone_number]
     )
     image_link = StringField(
         'image_link'
@@ -126,7 +142,7 @@ class VenueForm(Form):
             ('No', 'No'),
         ]
     )
-    seeking_description = StringField(
+    seeking_description = TextAreaField(
         'seeking_description'
     )
 
@@ -194,14 +210,12 @@ class ArtistForm(Form):
         ]
     )
     phone = StringField(
-        # TODO implement validation logic for state
         'phone'
     )
     image_link = StringField(
         'image_link'
     )
     genres = SelectMultipleField(
-        # TODO implement enum restriction
         'genres', validators=[DataRequired()],
         choices=[
             ('Alternative', 'Alternative'),
@@ -239,6 +253,6 @@ class ArtistForm(Form):
             ('No', 'No'),
         ]
     )
-    seeking_description = StringField(
+    seeking_description = TextAreaField(
         'seeking_description'
     )
