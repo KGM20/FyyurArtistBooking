@@ -205,6 +205,11 @@ def create_venue_submission():
 
     for genre in genres:
       temp = db.session.query(Genre).filter_by(name=genre).first()
+      if not temp:
+        new_genre = Genre(name=genre)
+        db.session.add(new_genre)
+        temp = new_genre
+
       venue_genres.append(temp)
 
     venue.venue_genres = venue_genres
@@ -378,6 +383,11 @@ def edit_artist_submission(artist_id):
 
     for genre in genres:
       temp = db.session.query(Genre).filter_by(name=genre).first()
+      if not temp:
+        new_genre = Genre(name=genre)
+        db.session.add(new_genre)
+        temp = new_genre
+
       artist_genres.append(temp)
 
     artist.name = name
@@ -470,6 +480,11 @@ def edit_venue_submission(venue_id):
 
     for genre in genres:
       temp = db.session.query(Genre).filter_by(name=genre).first()
+      if not temp:
+        new_genre = Genre(name=genre)
+        db.session.add(new_genre)
+        temp = new_genre
+
       venue_genres.append(temp)
 
     venue.name = name
@@ -531,6 +546,11 @@ def create_artist_submission():
 
     for genre in genres:
       temp = db.session.query(Genre).filter_by(name=genre).first()
+      if not temp:
+        new_genre = Genre(name=genre)
+        db.session.add(new_genre)
+        temp = new_genre
+
       artist_genres.append(temp)
 
     artist.artist_genres = artist_genres
